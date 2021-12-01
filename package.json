@@ -1,0 +1,11 @@
+{
+  "name": "advent_of_code_2021",
+  "version": "1.0.0",
+  "description": "Advent of Code 2021 Solutions",
+  "main": "index.js",
+  "author": "Michael Kalygin <michael.kalygin@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "node-fetch": "^3.1.0"
+  }
+}
