@@ -14,17 +14,16 @@ try {
     .split(',')
     .forEach(fish => counts[+fish] += 1);
 
-  Array.from({ length: DAYS })
-    .forEach(() => {
-      const children = counts[0];
+  for (let day = 0; day < DAYS; ++day) {
+    const children = counts[0];
 
-      for (let period = 1; period < counts.length; ++period) {
-        counts[period - 1] = counts[period];
-      }
+    for (let period = 1; period < counts.length; ++period) {
+      counts[period - 1] = counts[period];
+    }
 
-      counts[CHILD_FISH_CYCLE] = children;
-      counts[FISH_CYCLE] += children;
-    });
+    counts[CHILD_FISH_CYCLE] = children;
+    counts[FISH_CYCLE] += children;
+  }
 
   const answer = counts.reduce((acc, count) => acc + count, 0);
 
