@@ -3,7 +3,7 @@
 import fs from 'fs';
 
 const MAX_HEIGHT = 9;
-;
+
 const isBasinPoint = height =>
   Number.isInteger(height) && height < MAX_HEIGHT;
 
