@@ -12,7 +12,7 @@ try {
     .filter(Boolean)
     .reduce((acc, row) => {
       const [x, y] = row.split(',');
-      acc[row] = { x: +x, y: +y }
+      acc[row] = { x: +x, y: +y };
       return acc;
     }, {});
 
