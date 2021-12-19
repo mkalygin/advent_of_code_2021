@@ -1,6 +1,7 @@
 // Correct answer: 3699
 
 import fs from 'fs';
+import { DLNode, DLList } from './lib/structs.mjs';
 
 const MIN_DEPTH = 0;
 const MAX_DEPTH = 4;
@@ -22,176 +23,17 @@ const Side = Object.freeze({
   Right: 2,
 });
 
-class Node {
-  constructor({ value, depth = 0, side = Side.None, next = null, prev = null }) {
-    this.value = value;
+class Node extends DLNode {
+  constructor({ depth = 0, side = Side.None, ...attrs }) {
+    super(attrs);
     this.depth = depth;
     this.side = side;
-    this.next = next;
-    this.prev = prev;
   }
 }
 
-class List {
-  #head;
-  #tail;
-  #length;
-  #magnitude;
-
-  constructor() {
-    this.#head = null;
-    this.#tail = null;
-    this.#length = 0;
-  }
-
-  get head() {
-    return this.#head;
-  }
-
-  get tail() {
-    return this.#tail;
-  }
-
-  get length() {
-    return this.#length;
-  }
-
-  get magnitude() {
-    return this.#magnitude;
-  }
-
-  append({ value, depth, side }) {
-    const node = new Node({ value, depth, side });
-
-    if (this.length === 0) {
-      this.#head = node;
-      this.#tail = node;
-    } else {
-      node.prev = this.#tail;
-      this.#tail.next = node;
-      this.#tail = node;
-    }
-
-    this.#length += 1;
-
-    return node;
-  }
-
-  prepend({ value, depth, side }) {
-    const node = new Node({ value, depth, side });
-
-    if (this.length === 0) {
-      this.#head = node;
-      this.#tail = node;
-    } else {
-      node.next = this.#head;
-      this.#head.prev = node;
-      this.#head = node;
-    }
-
-    this.#length += 1;
-
-    return node;
-  }
-
-  insertAt(index, { value, depth, side }) {
-    if (!Number.isInteger(index) || index < 0 || index > this.#length) {
-      throw new Error('Invalid index');
-    }
-
-    if (index === 0) return this.prepend(value);
-    if (index === this.#length) return this.append(value);
-
-    const node = new Node({ value, depth, side });
-    const target = this.findAt(index);
-
-    node.prev = target.prev;
-    node.next = target;
-    target.prev.next = node;
-    target.prev = node;
-
-    this.#length += 1;
-
-    return node;
-  }
-
-  insertNext(target, { value, depth, side }) {
-    const node = new Node({ value, depth, side });
-
-    if (target === this.#tail) {
-      node.prev = target;
-      target.next = node;
-      this.#tail = node;
-    } else {
-      node.prev = target;
-      node.next = target.next;
-      target.next.prev = node;
-      target.next = node;
-    }
-
-    this.#length += 1;
-
-    return target;
-  }
-
-  insertPrev(target, { value, depth, side }) {
-    const node = new Node({ value, depth, side });
-
-    if (target === this.#head) {
-      node.next = target;
-      target.prev = node;
-      this.#head = node;
-    } else {
-      node.prev = target.prev;
-      node.next = target;
-      target.prev.next = node;
-      target.prev = node;
-    }
-
-    this.#length += 1;
-
-    return target;
-  }
-
-  removeAt(index) {
-    if (!Number.isInteger(index) || index < 0 || index > this.#length - 1) {
-      throw new Error('Invalid index');
-    }
-
-    const target = this.findAt(index);
-
-    return this.remove(target);
-  }
-
-  remove(target) {
-    if (target === this.#head) {
-      this.#head = target.next;
-      this.#head.prev = null;
-    } else if (target === this.#tail) {
-      this.#tail = target.prev;
-      this.#tail.next = null;
-    } else {
-      target.prev.next = target.next;
-      target.next.prev = target.prev;
-    }
-
-    this.#length -= 1;
-
-    return target;
-  }
-
-  findAt(index) {
-    if (!Number.isInteger(index) || index < 0 || index > this.#length - 1) {
-      throw new Error('Invalid index');
-    }
-
-    let target = this.#head;
-
-    for (let i = 1; i <= index; ++i) {
-      target = target.next;
-    }
-
-    return target;
+class List extends DLList {
+  createNode(attrs = {}) {
+    return new Node(attrs);
   }
 
   reduce() {
@@ -211,7 +53,7 @@ class List {
       magnified = this.magnifyOnce();
     } while (magnified > 0);
 
-    this.#magnitude = this.head.value;
+    this.magnitude = this.head.value;
   }
 
   explode() {
@@ -219,7 +61,7 @@ class List {
     let node = this.head;
 
     do {
-      if (node.depth === MAX_DEPTH && this.#isPairLeft(node)) {
+      if (node.depth === MAX_DEPTH && this.isPairLeft(node)) {
         if (node.prev) node.prev.value += node.value;
         if (node.next?.next) node.next.next.value += node.next.value;
 
@@ -229,7 +71,7 @@ class List {
         count += 1;
 
         this.remove(node.next);
-      } else if (this.#shouldBePairRight(node)) {
+      } else if (this.shouldBePairRight(node)) {
         node.side = Side.Right;
       }
     } while (node = node.next);
@@ -269,14 +111,14 @@ class List {
     let node = this.head;
 
     do {
-      if (this.#isPairLeft(node)) {
+      if (this.isPairLeft(node)) {
         node.value = node.value * 3 + node.next.value * 2;
         node.depth -= 1;
         node.side = node.depth === node.prev?.depth && node.prev?.side === Side.Left ? Side.Right : Side.Left;
         count += 1;
 
         this.remove(node.next);
-      } else if (this.#shouldBePairRight(node)) {
+      } else if (this.shouldBePairRight(node)) {
         node.side = Side.Right;
       }
     } while (node = node.next);
@@ -299,32 +141,32 @@ class List {
       node.depth += 1;
     } while (node = node.next);
 
-    list.head.prev = this.#tail;
-    this.#tail.next = list.head;
-    this.#tail = list.tail;
-    this.#length += list.length;
+    list.head.prev = this.tail;
+    this.tail.next = list.head;
+    this.tail = list.tail;
+    this.length += list.length;
   }
 
   toString() {
     let output = '';
-    let node = this.#head;
+    let node = this.head;
 
     do {
       output += `${node.value}${DepthChars[node.depth] || DepthChars.Max}`;
 
       if (node.next) {
-        output += this.#isPairLeft(node) ? '-' : ', ';
+        output += this.isPairLeft(node) ? '-' : ', ';
       }
     } while (node = node.next);
 
     return `(${output})`;
   }
 
-  #isPairLeft(node) {
+  isPairLeft(node) {
     return node.side === Side.Left && node.next?.side === Side.Right && node.depth === node.next?.depth;
   }
 
-  #shouldBePairRight(node) {
+  shouldBePairRight(node) {
     return node.side === Side.Left && node.prev?.side === Side.Left && node.depth === node.prev?.depth;
   }
 }
