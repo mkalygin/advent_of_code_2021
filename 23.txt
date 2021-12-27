@@ -1,0 +1,43 @@
+// Correct answer: 15111, 47625
+
+.._._._._..
+  B B C D
+  D C B A
+  D B A C
+  D C A A
+
+AA_._._B_CB // 70 + 400 + 30 + 9 + 9
+  B . . D
+  D C . A
+  D B . C
+  D C . A
+
+AA_B_._B_CB // 800 + 40 + 900
+  B . . D
+  D . . A
+  D . C C
+  D . C A
+
+AA_._._._.. // 50 + 60 + 50 + 500 + 70
+  . B . D
+  D B C A
+  D B C C
+  D B C A
+
+AA_._D_._AA // 4000 + 4 + 600 + 5
+  . B C .
+  D B C .
+  D B C .
+  D B C .
+
+AA_._._._AA // 7000 + 11000 * 3
+  . B C D
+  . B C D
+  . B C D
+  . B C D
+
+.._._._._.. // 5 + 5 + 9 + 9
+  A B C D
+  A B C D
+  A B C D
+  A B C D
